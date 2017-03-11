@@ -110,7 +110,7 @@ with tf.Session() as sess:
                   "cost=", "{:.9f}".format(c))
 
     print("Optimization Finished!")
-    print abs(c-cc)
+    print(abs(c-cc))
 
     # Applying encode and decode over test set
     encode_decode = sess.run(
