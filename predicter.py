@@ -16,7 +16,10 @@ class Predict:
     def act(self, observation, reward, done, info):
         if self.image is None:
             self.image = info['cursor']
-            return
+            return (10, (0,1))
 
         print(self.accuracy(self.image, info['cursor']))
+        self.image = info['cursor']
+
+        # Return action (don't try to predict digit, move in the same direction)
         return (10, (0,1))
