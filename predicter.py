@@ -6,6 +6,9 @@ class Predict:
     def train(image):
         pass
 
+    def predict(image):
+        return pred
+
     def accuracy(self, image, label):
         pred = self.predict(image)
         return cost
@@ -17,6 +20,3 @@ class Predict:
 
         print(self.accuracy(self.image, info['cursor']))
         return (10, (0,1))
-
-    def predict(image):
-        return pred
