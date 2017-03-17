@@ -8,7 +8,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data", one_hot=True)
 
 #parametre
-learning_rate=0.08
+learning_rate=0.2
 
 iteration=5
 
@@ -79,7 +79,7 @@ y_true=X
 
 cost = tf.reduce_mean(tf.pow(y_true - decoder_op, 2))
 #optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
-optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
+optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 #launcher#
 
