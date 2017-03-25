@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import random
 
 class Predicter:
-    def __init__(self, learning_rate,  nbp_input, time_training):
+    def __init__(self, learning_rate, nbp_input, move_distance):
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
         n_l1 = 256 
@@ -38,6 +38,10 @@ class Predicter:
 
         self.image = None
 
+        self.direction = None # Direction of the current move
+        self.move_distance = move_distance # Number of steps/pixels of a move
+        self.move_steps = 0 # Number of steps done for the current move
+
     def train(self, image, direction, next_image):
         input_ = np.concatenate((image, [[direction]]), axis=1)
         cost, _ = self.sess.run([self.cost, self.optimizer], feed_dict={self.X: input_, self.Y: next_image})
@@ -55,9 +59,12 @@ class Predicter:
             self.image = None
             return
 
-        action = (10, random.randint(0, 3))
-        next_image = info['cursor'].reshape(1,-1).astype(np.float32) / 255
+        if self.move_steps % self.move_distance == 0:
+            self.direction = random.randint(0, 3)
+        self.move_steps += 1
+        action = (10, self.direction)
 
+        next_image = info['cursor'].reshape(1,-1).astype(np.float32) / 255
         if self.image is None:
             self.image = next_image
             return action
