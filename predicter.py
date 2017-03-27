@@ -7,6 +7,7 @@ class Predicter:
     def __init__(self, learning_rate, nbp_input, move_distance):
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
+        self.moy=[0,0]
         n_l1 = 256 
         n_l2 = 128
         weights = {
@@ -60,7 +61,8 @@ class Predicter:
             return
 
         if self.move_steps % self.move_distance == 0:
-            self.direction = random.randint(0, 3)
+            self.direction = random.randint(0, 1)
+            #self.direction= 1
         self.move_steps += 1
         action = (10, self.direction)
 
@@ -70,7 +72,11 @@ class Predicter:
             return action
 
         cost = self.train(self.image, action[1], next_image)
-        print(1 - cost)
+        self.moy[0]+=1
+        self.moy[1]=self.moy[1]+(1-cost)
+        if self.moy[0]%100==0:
+            print("accuracy moyenne à i = ", self.moy[0], "est de ", self.moy[1]/self.moy[0])
+        #print(1 - cost)
 
         self.image = next_image
 
