@@ -33,7 +33,8 @@ class Predicter:
 
         self.cost = tf.reduce_mean(tf.pow(self.Y - dl2, 2))
         self.optimizer = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
-
+        
+        self.saver = tf.Saver()
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
@@ -62,7 +63,6 @@ class Predicter:
 
         if self.move_steps % self.move_distance == 0:
             self.direction = random.randint(0, 1)
-            #self.direction= 1
         self.move_steps += 1
         action = (10, self.direction)
 
@@ -71,14 +71,11 @@ class Predicter:
             self.image = next_image
             return action
 
-        cost = self.train(self.image, action[1], next_image)
-        self.moy[0]+=1
-        self.moy[1]=self.moy[1]+(1-cost)
-        if self.moy[0]%100==0:
-            print("accuracy moyenne à i = ", self.moy[0], "est de ", self.moy[1]/self.moy[0])
-        #print(1 - cost)
-
+        self.train(self.image, action[1], next_image)
         self.image = next_image
 
         # Return action (don't try to predict digit, move in the same direction)
         return action
+
+    def save_model(self, path):
+        self.saver.save(self.sess, path)
