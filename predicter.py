@@ -34,7 +34,7 @@ class Predicter:
         self.cost = tf.reduce_mean(tf.pow(self.Y - dl2, 2))
         self.optimizer = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
         
-        self.saver = tf.Saver()
+        self.saver = tf.train.Saver()
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
@@ -49,11 +49,13 @@ class Predicter:
         cost, _ = self.sess.run([self.cost, self.optimizer], feed_dict={self.X: input_, self.Y: next_image})
         return cost
 
-    def predict(self, image):
-        return self.sess.run([self.decoder], feed_dict={self.X: image})
+    def predict(self, image, direction):
+        input_ = np.concatenate((image, [[direction]]), axis=1)
+        return self.sess.run(self.decoder, feed_dict={self.X: input_})
 
-    def accuracy(self, image, next_image):
-        cost = self.sess.run([self.cost], feed_dict={self.X: image, self.Y: next_image})
+    def accuracy(self, image, direction, next_image):
+        input_ = np.concatenate((image, [[direction]]), axis=1)
+        cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
         return 1 - cost
 
     def act(self, observation, reward, done, info):
@@ -79,3 +81,8 @@ class Predicter:
 
     def save_model(self, path):
         self.saver.save(self.sess, path)
+
+    def load_model(self, path):
+        self.sess = tf.Session()
+        self.sess.run(tf.global_variables_initializer())
+        self.saver.restore(self.sess, path)
