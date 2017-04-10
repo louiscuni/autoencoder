@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 import random
 
 class Predicter:
-    def __init__(self, learning_rate, nbp_input, move_distance):
+    """
+    Class managing an autoencoder network predicting the cursor view
+    at one pixel in a given direction in a NumGrid environment.
+    """
+    def __init__(self, cursor_size, learning_rate=0.001):
+        nbp_input = np.prod(cursor_size)
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
         n_l1 = 256 
@@ -37,12 +42,6 @@ class Predicter:
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
-        self.image = None
-
-        self.direction = None # Direction of the current move
-        self.move_distance = move_distance # Number of steps/pixels of a move
-        self.move_steps = 0 # Number of steps done for the current move
-
     def train(self, image, direction, next_image):
         input_ = np.concatenate((image, [[direction]]), axis=1)
         cost, _ = self.sess.run([self.cost, self.optimizer], feed_dict={self.X: input_, self.Y: next_image})
@@ -57,31 +56,29 @@ class Predicter:
         cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
         return 1 - cost
 
-    def act(self, observation, reward, done, info):
-        if done:
-            self.image = None
-            return
-
-        if self.move_steps % self.move_distance == 0:
-            self.direction = random.randint(0, 1)
-        self.move_steps += 1
-        action = (10, self.direction)
-
-        next_image = observation.reshape(1,-1).astype(np.float32) / 255
-        if self.image is None:
-            self.image = next_image
-            return action
-
-        self.train(self.image, action[1], next_image)
-        self.image = next_image
-
-        # Return action (don't try to predict digit, move in the same direction)
-        return action
+    def learn(self, numgrid, num_episodes, move_distance=10):
+        for i in range(num_episodes):
+            observation = numgrid.reset()
+            done = False
+            image = None
+            t = 0
+            while not done:
+                if t % move_distance == 0:
+                    direction = random.randint(0, 3)
+                action = (10, direction)
+                observation, _, done, _ = numgrid.step(action)
+                next_image = observation.reshape(1,-1).astype(np.float32) / 255
+                if image is None:
+                    image = next_image
+                    continue
+                self.train(image, direction, next_image)
+                image = next_image
 
     def save_model(self, path):
         self.saver.save(self.sess, path)
 
     def load_model(self, path):
+        self.sess.close()
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
         self.saver.restore(self.sess, path)
