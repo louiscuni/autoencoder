@@ -7,7 +7,6 @@ class Predicter:
     def __init__(self, learning_rate, nbp_input, move_distance):
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
-        self.moy=[0,0]
         n_l1 = 256 
         n_l2 = 128
         weights = {
@@ -68,7 +67,7 @@ class Predicter:
         self.move_steps += 1
         action = (10, self.direction)
 
-        next_image = info['cursor'].reshape(1,-1).astype(np.float32) / 255
+        next_image = observation.reshape(1,-1).astype(np.float32) / 255
         if self.image is None:
             self.image = next_image
             return action
