@@ -67,7 +67,7 @@ class Predicter:
                     direction = random.randint(0, 3)
                 action = (10, direction)
                 observation, _, done, _ = numgrid.step(action)
-                next_image = observation.reshape(1,-1).astype(np.float32) / 255
+                next_image = Predicter.normalize(observation)
                 if image is None:
                     image = next_image
                     continue
@@ -78,7 +78,10 @@ class Predicter:
         self.saver.save(self.sess, path)
 
     def load_model(self, path):
-        self.sess.close()
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
         self.saver.restore(self.sess, path)
+
+    @staticmethod
+    def normalize(observation):
+        return observation.reshape(1,-1).astype(np.float32) / 255
