@@ -75,11 +75,11 @@ class Predicter:
                 image = next_image
 
     def save_model(self, path):
-        self.saver.save(self.sess, path)
+        return self.saver.save(self.sess, path)
 
     def load_model(self, path):
+        self.sess.close()
         self.sess = tf.Session()
-        self.sess.run(tf.global_variables_initializer())
         self.saver.restore(self.sess, path)
 
     @staticmethod
