@@ -12,8 +12,8 @@ class Predicter:
         nbp_input = np.prod(cursor_size)
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
-        n_l1 = 256 
-        n_l2 = 128
+        n_l1 = 130
+        n_l2 = 70
         weights = {
             'encoder_l1': tf.Variable(tf.random_normal([nbp_input + 1, n_l1])),
             'encoder_l2': tf.Variable(tf.random_normal([n_l1, n_l2])),
@@ -56,7 +56,7 @@ class Predicter:
         cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
         return 1 - cost
 
-    def learn(self, numgrid, num_episodes, move_distance=10):
+    def learn(self, numgrid, num_episodes, directions={0,1,2,3}, move_distance=10):
         for i in range(num_episodes):
             observation = numgrid.reset()
             done = False
@@ -64,7 +64,7 @@ class Predicter:
             t = 0
             while not done:
                 if t % move_distance == 0:
-                    direction = random.randint(0, 3)
+                    direction = random.choice(tuple(directions))
                 action = (10, direction)
                 observation, _, done, _ = numgrid.step(action)
                 next_image = Predicter.normalize(observation)
