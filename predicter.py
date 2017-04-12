@@ -73,6 +73,7 @@ class Predicter:
                     continue
                 self.train(image, direction, next_image)
                 image = next_image
+                t += 1
 
     def save_model(self, path):
         return self.saver.save(self.sess, path)
