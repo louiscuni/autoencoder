@@ -42,17 +42,17 @@ class Predicter:
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
-    def train(self, image, direction, next_image):
-        input_ = np.concatenate((image, [[direction]]), axis=1)
-        cost, _ = self.sess.run([self.cost, self.optimizer], feed_dict={self.X: input_, self.Y: next_image})
+    def train(self, images, directions, next_images):
+        inputs = np.hstack((images, directions))
+        cost, _ = self.sess.run([self.cost, self.optimizer], feed_dict={self.X: inputs, self.Y: next_images})
         return cost
 
     def predict(self, image, direction):
-        input_ = np.concatenate((image, [[direction]]), axis=1)
+        input_ = np.hstack((image, [[direction]]))
         return self.sess.run(self.decoder, feed_dict={self.X: input_})
 
     def accuracy(self, image, direction, next_image):
-        input_ = np.concatenate((image, [[direction]]), axis=1)
+        input_ = np.hstack((image, [[direction]]))
         cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
         return 1 - cost
 
@@ -60,20 +60,18 @@ class Predicter:
         for i in range(num_episodes):
             observation = numgrid.reset()
             done = False
-            image = None
+            images = Predicter.normalize(observation)
+            dirs = np.ndarray((0,1))
             t = 0
             while not done:
                 if t % move_distance == 0:
                     direction = random.choice(tuple(directions))
+                dirs = np.vstack((dirs, direction))
                 action = (10, direction)
                 observation, _, done, _ = numgrid.step(action)
-                next_image = Predicter.normalize(observation)
-                if image is None:
-                    image = next_image
-                    continue
-                self.train(image, direction, next_image)
-                image = next_image
+                images = np.vstack((images, Predicter.normalize(observation)))
                 t += 1
+            self.train(images[:-1], dirs, images[1:])
 
     def save_model(self, path):
         return self.saver.save(self.sess, path)
