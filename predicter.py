@@ -60,18 +60,17 @@ class Predicter:
         for i in range(num_episodes):
             observation = numgrid.reset()
             done = False
-            images = Predicter.normalize(observation)
-            dirs = np.ndarray((0,1))
+            image = Predicter.normalize(observation)
             t = 0
             while not done:
                 if t % move_distance == 0:
                     direction = random.choice(tuple(directions))
-                dirs = np.vstack((dirs, direction))
                 action = (10, direction)
                 observation, _, done, _ = numgrid.step(action)
-                images = np.vstack((images, Predicter.normalize(observation)))
+                next_image = Predicter.normalize(observation)
+                self.train(image, [[direction]], next_image)
+                image = next_image
                 t += 1
-            self.train(images[:-1], dirs, images[1:])
 
     def save_model(self, path):
         return self.saver.save(self.sess, path)
