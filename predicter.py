@@ -54,10 +54,12 @@ class Predicter:
     def accuracy(self, image, direction, next_image):
         input_ = np.hstack((image, [[direction]]))
         cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
-        return 1 - cost
+        return (1 - cost)*100
 
     def learn(self, numgrid, num_episodes, directions={0,1,2,3}, move_distance=10):
         for i in range(num_episodes):
+            if i%1000==0:
+                print(i, "sur ", num_episodes)
             observation = numgrid.reset()
             done = False
             image = Predicter.normalize(observation)
