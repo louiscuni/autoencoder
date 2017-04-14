@@ -12,8 +12,8 @@ class Predicter:
         nbp_input = np.prod(cursor_size)
         self.X = tf.placeholder("float32", [None, nbp_input + 1])
         self.Y = tf.placeholder("float32", [None, nbp_input])
-        n_l1 = 130
-        n_l2 = 70
+        n_l1 = int(0.7 * nbp_input)
+        n_l2 = int(0.7 * n_l1)
         weights = {
             'encoder_l1': tf.Variable(tf.random_normal([nbp_input + 1, n_l1])),
             'encoder_l2': tf.Variable(tf.random_normal([n_l1, n_l2])),
