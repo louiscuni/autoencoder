@@ -56,23 +56,27 @@ class Predicter:
         cost = self.sess.run(self.cost, feed_dict={self.X: input_, self.Y: next_image})
         return (1 - cost)*100
 
-    def learn(self, numgrid, num_episodes, directions={0,1,2,3}, move_distance=10):
+    def learn(self, numgrid, num_episodes, directions={0,1,2,3}):
+        sum_acc = 0
+        T = 0
         for i in range(num_episodes):
-            if i%1000==0:
-                print(i, "sur ", num_episodes)
+            if i % 100 == 0:
+                print("Épisode {}/{}".format(i, num_episodes))
             observation = numgrid.reset()
-            done = False
             image = Predicter.normalize(observation)
+            done = False
             t = 0
             while not done:
-                if t % move_distance == 0:
-                    direction = random.choice(tuple(directions))
+                direction = random.choice(tuple(directions))
                 action = (10, direction)
                 observation, _, done, _ = numgrid.step(action)
                 next_image = Predicter.normalize(observation)
-                self.train(image, [[direction]], next_image)
+                cost = self.train(image, [[direction]], next_image)
+                sum_acc += 1 - cost
                 image = next_image
                 t += 1
+                T += 1
+        return sum_acc / T
 
     def save_model(self, path):
         return self.saver.save(self.sess, path)
