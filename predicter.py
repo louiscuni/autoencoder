@@ -61,7 +61,7 @@ class Predicter:
         T = 0
         for i in range(num_episodes):
             if i % 100 == 0:
-                print("Épisode {}/{}".format(i, num_episodes))
+                print("Episodes done: {}/{}".format(i, num_episodes))
             observation = numgrid.reset()
             image = Predicter.normalize(observation)
             done = False
