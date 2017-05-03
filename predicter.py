@@ -6,7 +6,7 @@ import random
 class Predicter:
     """
     Class managing an autoencoder network predicting the cursor view
-    at one pixel in a given direction in a NumGrid environment.
+    at step t+1 in a given direction in a NumGrid environment.
     """
     def __init__(self, cursor_size, learning_rate=0.001):
         nbp_input = np.prod(cursor_size)
